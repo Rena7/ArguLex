@@ -20,6 +20,7 @@ const Chat = () => {
 
   const messagesEndRef = useRef(null);
 
+  // Update DaisyUI theme when theme changes
   useEffect(() => {
     document.documentElement.setAttribute(
       "data-theme",
@@ -27,11 +28,36 @@ const Chat = () => {
     );
   }, [isDarkTheme]);
 
+  // Scroll to bottom when messages change
   useEffect(() => {
     if (messagesEndRef.current) {
       messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
   }, [messages]);
+
+  // Update conversation title based on first message
+  useEffect(() => {
+    if (messages.length > 0 && messages[0].isBot === false) {
+      // Find the active conversation
+      const updatedConversations = conversations.map(conv => {
+        if (conv.id === activeChat) {
+          // Use first user message as title, trimmed to reasonable length
+          const title = messages[0].text.length > 30 
+            ? messages[0].text.substring(0, 30) + "..." 
+            : messages[0].text;
+          
+          // Also store the last message for preview
+          const lastMessage = messages[messages.length - 1].text;
+          
+          return { ...conv, title, lastMessage };
+        }
+        return conv;
+      });
+      
+      setConversations(updatedConversations);
+    }
+  }, [messages, activeChat]);
+
   const handleSendMessage = async (message) => {
     setMessages((prev) => [...prev, { text: message, isBot: false }]);
     setIsLoading(true);
@@ -46,6 +72,7 @@ const Chat = () => {
       // When a new message chunk is received
       eventSource.onmessage = (event) => {
         if (event.data) {
+          // const data = JSON.parse(event.data);
           botMessage += event.data + " ";
   
           // Update the message with each chunk as it arrives
@@ -56,7 +83,7 @@ const Chat = () => {
         }
       };
   
-      // Handle when the stream is closed
+      // Handle when the stream is opened
       eventSource.onopen = () => {
         console.log("Stream connection opened.");
       };
@@ -78,7 +105,7 @@ const Chat = () => {
         setIsLoading(false);
       };
   
-      // Handle the stream being completed (when all data has been sent)
+      // Handle the stream being completed
       eventSource.addEventListener("close", () => {
         setMessages((prev) => [
           ...prev.slice(0, -1),
@@ -88,7 +115,7 @@ const Chat = () => {
       });
   
       // Add an initial placeholder bot message while waiting for the stream
-      setMessages((prev) => [...prev, { text: "Thinking...", isBot: true }]);
+      setMessages((prev) => [...prev, { text: "", isBot: true }]);
     } catch (error) {
       console.error("Error:", error);
       setMessages((prev) => [
@@ -102,7 +129,6 @@ const Chat = () => {
     }
   };
   
-
   const handleNewChat = () => {
     const newId = Date.now().toString();
     setConversations([
@@ -117,19 +143,26 @@ const Chat = () => {
     setIsDarkTheme(!isDarkTheme);
   };
 
-  return (
-    <div className="flex h-screen bg-gradient-to-br from-indigo-100 via-white to-purple-100 relative overflow-hidden">
-      {/* Decorative Background Elements */}
-      <div className="absolute top-0 left-0 w-64 h-64 bg-indigo-300 rounded-full opacity-20 blur-3xl -translate-x-1/2 translate-y-1/4"></div>
-      <div className="absolute bottom-0 right-0 w-64 h-64 bg-purple-300 rounded-full opacity-20 blur-3xl translate-x-1/4 -translate-y-1/4"></div>
+  const handleDeleteChat = (chatId) => {
+    // Don't delete if it's the last conversation
+    if (conversations.length <= 1) return;
 
+    const updatedConversations = conversations.filter(conv => conv.id !== chatId);
+    setConversations(updatedConversations);
+    
+    // If deleting active chat, select another one
+    if (chatId === activeChat) {
+      setActiveChat(updatedConversations[0].id);
+      // Also reset messages to match the newly selected chat
+      // Here you would typically load messages for the selected chat
+      setMessages([]);
+    }
+  };
+
+  return (
+    <div className="flex h-screen bg-base-100 relative overflow-hidden">
       {/* Sidebar for desktop */}
-      <motion.div
-        initial={{ x: -300 }}
-        animate={{ x: 0 }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-        className="hidden md:block w-64 bg-white shadow-xl z-10"
-      >
+      <div className="hidden md:block h-full z-10">
         <Sidebar
           conversations={conversations}
           onNewChat={handleNewChat}
@@ -137,8 +170,9 @@ const Chat = () => {
           activeChat={activeChat}
           onToggleTheme={handleToggleTheme}
           isDarkTheme={isDarkTheme}
+          onDeleteChat={handleDeleteChat}
         />
-      </motion.div>
+      </div>
 
       {/* Mobile sidebar overlay */}
       <AnimatePresence>
@@ -156,7 +190,7 @@ const Chat = () => {
               animate={{ x: 0 }}
               exit={{ x: -300 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="w-64 bg-white h-full shadow-xl"
+              className="h-full"
               onClick={(e) => e.stopPropagation()}
             >
               <Sidebar
@@ -169,6 +203,7 @@ const Chat = () => {
                 activeChat={activeChat}
                 onToggleTheme={handleToggleTheme}
                 isDarkTheme={isDarkTheme}
+                onDeleteChat={handleDeleteChat}
               />
             </motion.div>
           </motion.div>
@@ -183,7 +218,10 @@ const Chat = () => {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <Header onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+          <Header 
+            onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} 
+            title={conversations.find(conv => conv.id === activeChat)?.title || "New conversation"}
+          />
         </motion.div>
 
         {/* Chat Container */}
@@ -196,10 +234,10 @@ const Chat = () => {
               className="h-full flex flex-col items-center justify-center text-center p-4"
             >
               <div className="max-w-md mb-8">
-                <h2 className="text-3xl font-bold text-indigo-600 mb-4">
-                  Welcome, {currentUser.displayName || "User"}!
+                <h2 className="text-3xl font-bold text-primary mb-4">
+                  Welcome, {currentUser?.displayName || "User"}!
                 </h2>
-                <p className="text-gray-600 mb-6">
+                <p className="text-base-content/80 mb-6">
                   Start a conversation with your AI assistant. Ask questions,
                   get help with tasks, or just chat about anything you're
                   interested in!
@@ -220,7 +258,10 @@ const Chat = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.3 }}
                 >
-                                {isLoading && (
+                  <ChatMessage message={msg.text} isBot={msg.isBot} />
+                </motion.div>
+              ))}
+              {isLoading && (
                 <motion.div
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
@@ -229,9 +270,6 @@ const Chat = () => {
                   <ThinkingAnimation />
                 </motion.div>
               )}
-                  <ChatMessage message={msg.text} isBot={msg.isBot} />
-                </motion.div>
-              ))}
               <div ref={messagesEndRef} />
             </div>
           )}
@@ -243,7 +281,7 @@ const Chat = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="p-4 shadow-md"
+            className="p-4 bg-base-200"
           >
             <ChatInput
               onSendMessage={handleSendMessage}

@@ -5,6 +5,7 @@ import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import SettingsPopup from "@/components/SettingsPopup";
+import { TT_Moons } from 'next/font/google';
 
 const Header = ({ onToggleSidebar }) => {
   const { currentUser, logout } = useAuth();

@@ -10,7 +10,7 @@ const ChatMessage = ({ message, isBot, timestamp, onReact, reaction }) => {
 
   // Typing Animation for AI Responses
   useEffect(() => {
-    if (isBot && message !== "Thinking...") {
+    if (isBot && message !== "") {
       const interval = setInterval(() => {
         if (index < message.length) {
           setDisplayedText((prev) => prev + message[index]);
