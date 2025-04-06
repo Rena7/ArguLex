@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
+import { Poppins } from 'next/font/google';
 import "./globals.css";
 import { AuthProvider } from '@/context/AuthContext';
 
@@ -17,6 +18,12 @@ export const metadata = {
   description: "AI Assistant for Attorneys",
 };
 
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-poppins',
+});
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
@@ -24,7 +31,7 @@ export default function RootLayout({ children }) {
       <link rel="icon" href="favicon.ico" sizes="any" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${poppins.variable} antialiased`}
       >
         <AuthProvider>
           {children}

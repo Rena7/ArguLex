@@ -10,7 +10,7 @@ const ChatMessage = ({ message, isBot, timestamp, onReact, reaction }) => {
 
   // Typing Animation for AI Responses
   useEffect(() => {
-    if (isBot && message !== "Thinking...") {
+    if (isBot && message !== "") {
       const interval = setInterval(() => {
         if (index < message.length) {
           setDisplayedText((prev) => prev + message[index]);
@@ -108,7 +108,7 @@ const ChatMessage = ({ message, isBot, timestamp, onReact, reaction }) => {
             </div>
 
             {/* Reactions (only for AI messages) */}
-            {isBot && message !== "Thinking..." && (
+            {/* {isBot && message !== "Thinking..." && (
               <div className="flex gap-2 mt-2">
                 <motion.button
                   whileHover={{ scale: 1.2 }}
@@ -141,7 +141,7 @@ const ChatMessage = ({ message, isBot, timestamp, onReact, reaction }) => {
                   <FaThumbsDown className="w-4 h-4" />
                 </motion.button>
               </div>
-            )}
+            )} */}
           </div>
         </div>
       </div>

@@ -73,9 +73,9 @@ const SignupPage = () => {
         transition={{ duration: 0.8 }}
         className="hidden lg:block lg:w-1/2 p-10"
       >
-        <h1 className="text-4xl font-bold text-gray-800 mb-4">Fast, Efficient, and Productive</h1>
+        <h1 className="text-4xl font-bold text-gray-800 mb-4">ArguLex Welcomes you!</h1>
         <p className="text-gray-600 text-lg">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed.
+          Signup to start your journey with ArguLex an AI Assistant for Attorneys.
         </p>
       </motion.div>
 

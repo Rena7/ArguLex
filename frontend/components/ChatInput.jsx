@@ -71,7 +71,7 @@ const ChatInput = ({ onSendMessage, isLoading, isNewChat }) => {
           />
 
           {/* Voice Input Button */}
-          <motion.button
+          {/* <motion.button
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
             type="button"
@@ -79,7 +79,7 @@ const ChatInput = ({ onSendMessage, isLoading, isNewChat }) => {
             title="Voice input"
           >
             <FaMicrophone className="w-5 h-5" />
-          </motion.button>
+          </motion.button> */}
 
           {/* Send Button */}
           <motion.button
