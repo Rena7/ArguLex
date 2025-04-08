@@ -87,11 +87,6 @@ Evaluated using:
 - Khaja Fasi Ahmed – MS in Computer Science  
 
 ---
+![WhatsApp Image 2025-04-06 at 12 18 29](https://github.com/user-attachments/assets/b0decdb2-7463-4c95-bdbf-50acc4d6f713)
 
-## 📬 Contact
 
-For collaboration, deployment, or demo requests, please reach out via GitHub or email.
-
----
-
-*Developed for Hack UNT 2025 | LegalTech Innovation for Public Good*
